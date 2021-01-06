@@ -3,7 +3,7 @@ class TweetsController < ApplicationController
   before_action :move_to_index, except: [:index, :show]
 
   def index
-    @tweets = Tweet.includes(:user)
+    @tweets = Tweet.includes(:user).order("created_at DESC")
   end
 
   def new
@@ -11,7 +11,7 @@ class TweetsController < ApplicationController
   end
   
   def create
-    Tweet.create(params_tweet)
+    Tweet.create(tweet_params)
   end
 
   def destroy
@@ -24,15 +24,16 @@ class TweetsController < ApplicationController
 
   def update
     tweet = Tweet.find(params[:id])
-    tweet.update(params_tweet)
+    tweet.update(tweet_params)
   end
 
   def show
+    @comment = Comment.new
+    @comments = @tweet.comments.includes(:user)
   end
 
   private
-
-  def params_tweet
+  def tweet_params
     params.require(:tweet).permit(:image, :text).merge(user_id: current_user.id)
   end
 
